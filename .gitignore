@@ -1,0 +1,4 @@
+.vscode
+node_modules
+Brewfile.lock.json
+.DS_Store

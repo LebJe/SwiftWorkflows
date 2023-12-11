@@ -1,0 +1,46 @@
+name: "Generate Documentation"
+
+on:
+    workflow_call:
+        inputs:
+            TargetName:
+                required: true
+                description: "The name of the target to generate documentation for."
+                type: "string"
+            DoccBundlePath:
+                required: true
+                description: "The path to the .docc documentation bundle (relative to the root of the repository, for example: Sources/Library/Library.docc)"
+                type: "string"
+
+jobs:
+    "GenerateDocumentation":
+        runs-on: "macos-latest"
+        steps:
+            - uses: "actions/checkout@v4"
+            # - name: "Clone swift-docc-render"
+            #   run: "gh repo clone LebJe/swift-docc-render"
+            #   env:
+            #       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+            # - name: "Build swift-docc-render"
+            #   run: "cd swift-docc-render/ && npm install && npm run build && cd .."
+            - name: "Build ${{ inputs.TargetName }}"
+              run: "swift build --target ${{ inputs.TargetName }} -Xswiftc -emit-symbol-graph -Xswiftc -emit-symbol-graph-dir -Xswiftc .build"
+            - name: "Build Documentation"
+              run: |
+                  #export DOCC_HTML_DIR=swift-docc-render/dist
+
+                  xcrun docc convert \
+                  ${{ inputs.DoccBundlePath }} \
+                  --fallback-display-name ${{ inputs.TargetName }} \
+                  --fallback-bundle-identifier com.LebJe.${{ inputs.TargetName }} \
+                  --fallback-bundle-version 1 \
+                  --additional-symbol-graph-dir .build \
+                  --enable-inherited-docs \
+                  --output-dir docs
+
+                  xcrun docc process-archive transform-for-static-hosting docs --hosting-base-path /${{ inputs.TargetName }}
+            - name: "Deploy to GitHub Pages"
+              uses: "peaceiris/actions-gh-pages@v3"
+              with:
+                  github_token: "${{ secrets.GITHUB_TOKEN }}"
+                  publish_dir: "docs"
