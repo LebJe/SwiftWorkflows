@@ -36,7 +36,7 @@ on:
 
 jobs:
     TestOnMacOS-Latest:
-        if: ${{ inputs.macOS }}
+        if: ${{ inputs.testOnMacOS }}
         runs-on: "macos-latest"
         steps:
             - uses: "actions/checkout@v4"
@@ -60,14 +60,14 @@ jobs:
     #           apt update -yq
     #           swift test
     TestOnUbuntu-20_04-x86_64:
-        if: ${{ inputs.Linux }}
+        if: ${{ inputs.testOnLinux }}
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v4"
             - name: "Run tests"
               run: "${{ inputs.testCommandLinux }}"
     TestOnWindows10-x86_64:
-        if: ${{ inputs.Windows }}
+        if: ${{ inputs.testOnWindows }}
         runs-on: "windows-latest"
         steps:
             - uses: "actions/checkout@v4"
