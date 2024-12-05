@@ -17,18 +17,10 @@ jobs:
         runs-on: "macos-latest"
         steps:
             - uses: "actions/checkout@v4"
-            # - name: "Clone swift-docc-render"
-            #   run: "gh repo clone LebJe/swift-docc-render"
-            #   env:
-            #       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-            # - name: "Build swift-docc-render"
-            #   run: "cd swift-docc-render/ && npm install && npm run build && cd .."
             - name: "Build ${{ inputs.TargetName }}"
               run: "swift build --target ${{ inputs.TargetName }} -Xswiftc -emit-symbol-graph -Xswiftc -emit-symbol-graph-dir -Xswiftc .build"
             - name: "Build Documentation"
               run: |
-                  #export DOCC_HTML_DIR=swift-docc-render/dist
-
                   xcrun docc convert \
                   ${{ inputs.DoccBundlePath }} \
                   --fallback-display-name ${{ inputs.TargetName }} \

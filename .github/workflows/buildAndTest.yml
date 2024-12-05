@@ -3,30 +3,45 @@ name: "Build and Test"
 on:
     workflow_call:
         inputs:
-            macOS:
+            testOnMacOS:
                 required: false
                 description: "Whether the package should be compiled and tested on MacOS"
                 type: "boolean"
                 default: true
-            Linux:
+            testOnLinux:
                 required: false
                 description: "Whether the package should be compiled and tested on Linux"
                 type: "boolean"
                 default: true
-            Windows:
+            testOnWindows:
                 required: false
                 description: "Whether the package should be compiled and tested on Windows"
                 type: "boolean"
                 default: true
+            testCommandMacOS:
+                required: false
+                description: "Command to run to test the Swift package on macOS"
+                type: "string"
+                default: "swift test"
+            testCommandLinux:
+                required: false
+                description: "Command to run to test the Swift package on Linux"
+                type: "string"
+                default: "swift test"
+            testCommandWindows:
+                required: false
+                description: "Command to run to test the Swift package on Windows"
+                type: "string"
+                default: "swift test -Xcc -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH -Xcxx -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH"
 
 jobs:
-    TestOnMacOS-Latest-x86_64:
+    TestOnMacOS-Latest:
         if: ${{ inputs.macOS }}
         runs-on: "macos-latest"
         steps:
             - uses: "actions/checkout@v4"
             - name: "Run tests"
-              run: "swift test"
+              run: "${{ inputs.testCommandMacOS }}"
     # TestOnUbuntu-20_04-ARM:
     #   runs-on: ubuntu-latest
     #   steps:
@@ -50,7 +65,7 @@ jobs:
         steps:
             - uses: "actions/checkout@v4"
             - name: "Run tests"
-              run: "swift test"
+              run: "${{ inputs.testCommandLinux }}"
     TestOnWindows10-x86_64:
         if: ${{ inputs.Windows }}
         runs-on: "windows-latest"
@@ -59,14 +74,7 @@ jobs:
             - uses: "seanmiddleditch/gha-setup-vsdevenv@master"
             - uses: "compnerd/gha-setup-swift@main"
               with:
-                  branch: "swift-5.8-release"
-                  tag: "5.8-RELEASE"
+                  branch: "swift-6.0-release"
+                  tag: "6.0-RELEASE"
             - name: "Test"
-              run: "swift test -Xcc -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH -Xcxx -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH"
-    TestBuildingOnMacOS-Latest-ARM64:
-        if: ${{ inputs.macOS }}
-        runs-on: "macos-latest"
-        steps:
-            - uses: "actions/checkout@v4"
-            - name: "Run tests"
-              run: "swift build --arch arm64"
+              run: "${{ inputs.testCommandWindows }}"
